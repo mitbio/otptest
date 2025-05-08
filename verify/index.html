@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify Your OTP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e0e5ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #e0e5ec;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 9px 9px 16px #bebebe,
+                  -9px -9px 16px #ffffff;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .otp-inputs input {
+      width: 50px;
+      height: 60px;
+      font-size: 2rem;
+      text-align: center;
+      border: none;
+      border-radius: 12px;
+      background: #e0e5ec;
+      box-shadow: inset 6px 6px 10px #bebebe,
+                  inset -6px -6px 10px #ffffff;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .otp-inputs input:focus {
+      box-shadow: inset 4px 4px 8px #bebebe,
+                  inset -4px -4px 8px #ffffff;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 8px #bebebe,
+                  -4px -4px 8px #ffffff;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-weight: bold;
+      min-height: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit code sent to your email</p>
+    <div class="otp-inputs">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+      <input type="text" maxlength="1">
+    </div>
+    <button onclick="verifyOTP()">Verify</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    const inputs = document.querySelectorAll(".otp-inputs input");
+
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", (e) => {
+        gsap.fromTo(input, { scale: 0.9 }, { scale: 1, duration: 0.2 });
+        const value = input.value;
+        if (/\D/.test(value)) input.value = ""; // remove non-digit
+        else if (value && index < inputs.length - 1) inputs[index + 1].focus();
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+
+      input.addEventListener("focus", () => {
+        gsap.to(input, { boxShadow: "0 0 8px #007bff", duration: 0.3 });
+      });
+
+      input.addEventListener("blur", () => {
+        gsap.to(input, { boxShadow: "none", duration: 0.3 });
+      });
+    });
+
+    const id = new URLSearchParams(window.location.search).get('id');
+
+    async function verifyOTP() {
+      const otp = Array.from(inputs).map(i => i.value).join("");
+      const messageEl = document.getElementById('message');
+
+      if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+        messageEl.textContent = "Enter a valid 6-digit code.";
+        messageEl.style.color = 'red';
+        return;
+      }
+
+      messageEl.textContent = "Verifying...";
+      messageEl.style.color = 'black';
+
+      try {
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbzcgxtMID4TYYE9jU007zODiUa_Ch0yqYuPDhGT_sdrUbRLY_bCNhAZHUvlu2GA4Sb6/exec?id=${id}&otp=${otp}`);
+        const result = await response.json();
+
+        if (result.status === 'verified') {
+          messageEl.textContent = "OTP Verified Successfully!";
+          messageEl.style.color = 'green';
+        } else if (result.status === 'expired') {
+          messageEl.textContent = "OTP has expired.";
+          messageEl.style.color = 'red';
+        } else if (result.status === 'invalid') {
+          messageEl.textContent = "Invalid OTP.";
+          messageEl.style.color = 'red';
+        } else {
+          messageEl.textContent = "Verification failed.";
+          messageEl.style.color = 'red';
+        }
+      } catch (error) {
+        messageEl.textContent = "An error occurred.";
+        messageEl.style.color = 'red';
+      }
+    }
+  </script>
+</body>
+</html>
