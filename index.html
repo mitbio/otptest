@@ -137,7 +137,7 @@
     });
 
 
-  
+  /*
     // Form Submission
     document.getElementById('lead-form').addEventListener('submit', e => {
       e.preventDefault();
@@ -149,7 +149,7 @@
         alert('Please enter a valid name and phone number.');
         return;
       }
-
+*/
 // Form Submission
 document.getElementById('lead-form').addEventListener('submit', e => {
   e.preventDefault();
@@ -168,15 +168,15 @@ document.getElementById('lead-form').addEventListener('submit', e => {
     email: email
   };
 
-  fetch('https://script.google.com/macros/s/AKfycbxOV3_i7w9MJ1KLbGQ756EERFqr530d9nozEQo8fvFtA4KTK3ttUGwAJoDkNMh-A0IN/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbzPP-Aj4yhuFl-TGtIElR7bJRgdfGZSINucgwVmXyr-H85xkjOVd_ms0VWfaRwBQqOr/exec', {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: {
       'Content-Type': 'application/json'
     }
   })
-  .then(response => response.json())
-  .then(data => {
+  .then(response => response.json());
+/*  .then(data => {
     if (data.status === 'success') {
       gsap.to('.form-container', { duration: 0.4, y: -20, opacity: 0 });
       gsap.delayedCall(0.5, () => {
@@ -185,7 +185,7 @@ document.getElementById('lead-form').addEventListener('submit', e => {
       });
     } else {
       alert('Error: ' + data.message);
-    }
+    }*/
   })
   .catch(error => {
     alert('Request failed: ' + error.message);
